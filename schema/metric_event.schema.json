@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://vigil.example.com/schemas/metric_event.schema.json",
+  "title": "MetricEvent",
+  "description": "Schema for server agent metric events pushed to the collector.",
+  "type": "object",
+  "required": ["agent_id", "hostname", "timestamp", "metrics"],
+  "properties": {
+    "agent_id": {
+      "type": "string",
+      "description": "Unique identifier for the reporting agent"
+    },
+    "hostname": {
+      "type": "string",
+      "description": "Hostname of the monitored server"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when metrics were collected"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Collected system metrics",
+      "required": ["cpu_percent", "memory_percent"],
+      "properties": {
+        "cpu_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "CPU usage percentage"
+        },
+        "memory_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Memory usage percentage"
+        },
+        "memory_used_mb": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Memory used in megabytes"
+        },
+        "memory_total_mb": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total memory in megabytes"
+        },
+        "disk_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Disk usage percentage"
+        },
+        "disk_used_gb": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Disk space used in gigabytes"
+        },
+        "disk_total_gb": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total disk space in gigabytes"
+        },
+        "network_bytes_sent": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total network bytes sent since boot"
+        },
+        "network_bytes_recv": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total network bytes received since boot"
+        },
+        "uptime_seconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "System uptime in seconds"
+        },
+        "process_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of running processes"
+        },
+        "top_processes": {
+          "type": "array",
+          "description": "Top processes by CPU usage",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pid": { "type": "integer" },
+              "name": { "type": "string" },
+              "cpu_percent": { "type": "number" },
+              "memory_percent": { "type": "number" },
+              "memory_mb": { "type": "number" }
+            },
+            "required": ["pid", "name"]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

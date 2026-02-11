@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing & Coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Node.js (TypeScript SDK)
+node_modules/
+sdks/typescript/dist/
+sdks/typescript/coverage/
+
+# Go (Go SDK)
+sdks/go/bin/
+
+# Config secrets
+.env
+.env.*
+!.env.example
+
+# OS
+Thumbs.db
+
+# Tauri build artifacts
+tauri_audit_gui/target/

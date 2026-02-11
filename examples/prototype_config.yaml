@@ -1,0 +1,21 @@
+vigil:
+  core:
+    enabled: true
+    application_name: "prototype_app"
+    environment: "local"
+
+  storage:
+    backends:
+      - type: file
+        enabled: true
+        directory: ./logs/audit
+        format: jsonl
+        filename_pattern: "prototype_{date}.log"
+
+  processing:
+    sanitization:
+      enabled: true
+
+  performance:
+    async:
+      enabled: false

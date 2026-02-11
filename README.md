@@ -1,4 +1,4 @@
-# 🔍 Audit Framework
+# 🔍 Vigil
 
 **A framework-agnostic, production-ready audit logging system for Python applications.**
 
@@ -25,20 +25,20 @@
 ### Installation
 
 ```bash
-pip install audit-framework
+pip install vigil
 ```
 
 Or install from source:
 ```bash
-git clone https://github.com/yourorg/audit-framework.git
-cd audit-framework
+git clone https://github.com/yourorg/vigil.git
+cd vigil
 pip install -e .
 ```
 
 ### Basic Usage
 
 ```python
-from audit_framework import audit_log
+from vigil import audit_log
 
 # Just add a decorator - that's it!
 @audit_log
@@ -51,7 +51,7 @@ def process_payment(amount, user_id):
 ### With Context Manager
 
 ```python
-from audit_framework import AuditContext
+from vigil import AuditContext
 
 with AuditContext(action="FILE_UPLOAD", resource_type="file", resource_name="document.pdf"):
     file.save("document.pdf")
@@ -61,7 +61,7 @@ with AuditContext(action="FILE_UPLOAD", resource_type="file", resource_name="doc
 ### Direct API
 
 ```python
-from audit_framework import AuditEngine
+from vigil import AuditEngine
 
 audit = AuditEngine()
 audit.log(
@@ -130,7 +130,7 @@ decorator, context manager, or direct engine API in your framework of choice.
 ### Minimal Configuration (Just Works™)
 
 ```python
-from audit_framework import AuditEngine
+from vigil import AuditEngine
 
 audit = AuditEngine()  # Uses sensible defaults
 ```
@@ -139,7 +139,7 @@ audit = AuditEngine()  # Uses sensible defaults
 
 ```yaml
 # config/audit.yaml
-audit_framework:
+vigil:
   core:
     enabled: true
     application_name: "my_app"
@@ -157,7 +157,7 @@ audit_framework:
 ```
 
 ```python
-from audit_framework import AuditEngine
+from vigil import AuditEngine
 
 audit = AuditEngine(config_file="config/audit.yaml")
 ```
@@ -187,7 +187,7 @@ Supports:
 ### Encryption & Signing
 
 ```yaml
-audit_framework:
+vigil:
   security:
     encryption:
       enabled: true
@@ -261,7 +261,7 @@ storage:
 ### Search Events
 
 ```python
-from audit_framework import AuditQuery
+from vigil import AuditQuery
 
 # Simple search
 events = AuditQuery.search(
@@ -383,7 +383,7 @@ compliance:
 ```python
 # app.py
 from flask import Flask
-from audit_framework.integrations import FlaskAuditMiddleware
+from vigil.integrations import FlaskAuditMiddleware
 
 app = Flask(__name__)
 app.wsgi_app = FlaskAuditMiddleware(app.wsgi_app)
@@ -397,7 +397,7 @@ def get_user(user_id):
 ### Database Operations
 
 ```python
-from audit_framework import audit_log
+from vigil import audit_log
 
 @audit_log(category="DATABASE")
 def execute_query(sql, params):
@@ -409,7 +409,7 @@ def execute_query(sql, params):
 
 ```python
 import click
-from audit_framework import audit_log
+from vigil import audit_log
 
 @click.command()
 @click.argument('database')
@@ -424,7 +424,7 @@ def backup(database):
 
 ```python
 import tkinter as tk
-from audit_framework import audit_log
+from vigil import audit_log
 
 class App(tk.Tk):
     @audit_log(action="BUTTON_CLICK")
@@ -442,7 +442,7 @@ class App(tk.Tk):
 pytest tests/ -v
 
 # Run with coverage
-pytest tests/ --cov=audit_framework --cov-report=html
+pytest tests/ --cov=vigil --cov-report=html
 
 # Run specific test suite
 pytest tests/unit/ -v
@@ -454,7 +454,7 @@ pytest tests/performance/ -v
 
 ## 📖 Documentation
 
-- **[Design Document](docs/GENERIC_AUDIT_FRAMEWORK_DESIGN.md)** - Complete architecture
+- **[Design Document](docs/VIGIL_DESIGN.md)** - Complete architecture
 - **[API Reference](docs/API_REFERENCE.md)** - Full API documentation
 - **[Integration Guide](docs/INTEGRATION_GUIDE.md)** - Framework integrations
 - **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)** - All config options
@@ -468,8 +468,8 @@ pytest tests/performance/ -v
 ### Setup Development Environment
 
 ```bash
-git clone https://github.com/yourorg/audit-framework.git
-cd audit-framework
+git clone https://github.com/yourorg/vigil.git
+cd vigil
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -e ".[dev]"
@@ -478,20 +478,20 @@ pip install -e ".[dev]"
 ### Run Tests
 
 ```bash
-pytest tests/ -v --cov=audit_framework
+pytest tests/ -v --cov=vigil
 ```
 
 ### Code Formatting
 
 ```bash
-black audit_framework/ tests/
-isort audit_framework/ tests/
+black vigil/ tests/
+isort vigil/ tests/
 ```
 
 ### Type Checking
 
 ```bash
-mypy audit_framework/
+mypy vigil/
 ```
 
 ---
@@ -524,10 +524,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Documentation:** https://docs.example.com/audit-framework
-- **Issues:** https://github.com/yourorg/audit-framework/issues
-- **Discussions:** https://github.com/yourorg/audit-framework/discussions
-- **Email:** audit-framework@example.com
+- **Documentation:** https://docs.example.com/vigil
+- **Issues:** https://github.com/yourorg/vigil/issues
+- **Discussions:** https://github.com/yourorg/vigil/discussions
+- **Email:** vigil@example.com
 
 ---
 

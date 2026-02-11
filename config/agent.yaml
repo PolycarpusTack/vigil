@@ -1,0 +1,6 @@
+agent:
+  agent_id: "server-prod-01"
+  collector_url: "http://collector:8080"
+  api_key: "${AUDIT_API_KEY}"
+  interval_seconds: 30
+  top_processes_count: 5

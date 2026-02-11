@@ -1,0 +1,45 @@
+services:
+  collector:
+    build:
+      context: .
+      dockerfile: collector/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgresql://audit:audit@db:5432/audit
+      API_KEYS: "changeme-dev-key"
+      LOG_LEVEL: INFO
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: audit
+      POSTGRES_PASSWORD: audit
+      POSTGRES_DB: audit
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U audit"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  agent:
+    build:
+      context: .
+      dockerfile: agent/Dockerfile
+    environment:
+      AGENT_ID: "docker-agent-01"
+      COLLECTOR_URL: "http://collector:8080"
+      AUDIT_API_KEY: "changeme-dev-key"
+      INTERVAL_SECONDS: "30"
+    depends_on:
+      - collector
+
+volumes:
+  pgdata:

@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>Audit Explorer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">AE</div>
+          <div class="brand-text">
+            <div class="title">Audit Explorer</div>
+            <div class="subtitle">Readable audit trails for everyone</div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button id="tutorialToggle" class="btn ghost">Tutorial: Off</button>
+          <button id="loadSample" class="btn ghost">Load Sample</button>
+          <button id="exportJson" class="btn ghost">Export JSON</button>
+          <button id="exportCsv" class="btn ghost">Export CSV</button>
+          <button id="exportReport" class="btn ghost">Export Report</button>
+          <button id="exportPdf" class="btn ghost">Export PDF</button>
+          <button id="printReport" class="btn ghost">Print Report</button>
+          <button id="helpToggle" class="btn ghost">Help</button>
+          <button id="clearData" class="btn">Clear Data</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <aside class="sidebar">
+          <div class="panel">
+            <h2>Load Logs</h2>
+            <p class="hint">Accepts JSON, JSONL, or CSV files.</p>
+            <input id="fileInput" type="file" accept=".json,.jsonl,.csv,.txt" multiple />
+            <div class="status" id="loadStatus">No file loaded.</div>
+          </div>
+
+          <div class="panel">
+            <h2>Filters</h2>
+            <label class="field">
+              <span>Search</span>
+              <input id="searchInput" type="text" placeholder="user, action, id..." />
+            </label>
+            <label class="field">
+              <span>Regex Search</span>
+              <select id="regexToggle">
+                <option value="false">Off</option>
+                <option value="true">On</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Advanced Query</span>
+              <input id="queryInput" type="text" placeholder="action:login user:alice status:FAILURE" />
+            </label>
+            <div class="preset-row">
+              <button id="presetFailures" class="btn ghost">Failures</button>
+              <button id="presetLogins" class="btn ghost">Logins</button>
+              <button id="presetErrors" class="btn ghost">Errors</button>
+            </div>
+            <label class="field">
+              <span>Category</span>
+              <select id="categoryFilter">
+                <option value="">All</option>
+                <option>AUTH</option>
+                <option>DATABASE</option>
+                <option>API</option>
+                <option>FILE</option>
+                <option>SYSTEM</option>
+                <option>SECURITY</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Status</span>
+              <select id="statusFilter">
+                <option value="">All</option>
+                <option>SUCCESS</option>
+                <option>FAILURE</option>
+                <option>PARTIAL</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Date From</span>
+              <input id="dateFrom" type="date" />
+            </label>
+            <label class="field">
+              <span>Date To</span>
+              <input id="dateTo" type="date" />
+            </label>
+            <label class="field">
+              <span>Only Errors</span>
+              <select id="errorFilter">
+                <option value="">All</option>
+                <option value="true">Errors Only</option>
+              </select>
+            </label>
+            <button id="applyFilters" class="btn">Apply Filters</button>
+            <button id="resetFilters" class="btn ghost">Reset</button>
+          </div>
+
+          <div class="panel">
+            <h2>Live Tail</h2>
+            <p class="hint">Tauri desktop only. Tails JSONL files in real time.</p>
+            <button id="tailSelect" class="btn ghost">Choose File</button>
+            <button id="tailToggle" class="btn">Start Tail</button>
+            <label class="field">
+              <span>Interval (ms)</span>
+              <input id="tailInterval" type="number" min="500" value="2000" />
+            </label>
+            <div class="status" id="tailStatus">Tail: stopped</div>
+          </div>
+
+          <div class="panel">
+            <h2>Saved Views</h2>
+            <label class="field">
+              <span>View Name</span>
+              <input id="viewName" type="text" placeholder="e.g. Failed Logins" />
+            </label>
+            <button id="saveView" class="btn">Save View</button>
+            <div class="view-list" id="viewList"></div>
+          </div>
+
+          <div class="panel">
+            <h2>Field Guide</h2>
+            <div class="mini-guide" id="fieldGuide"></div>
+          </div>
+
+          <div class="panel">
+            <h2>Action Glossary</h2>
+            <div class="mini-guide glossary">
+              <div><strong>Category</strong> describes the domain (AUTH, DATABASE, API, FILE, SYSTEM).</div>
+              <div><strong>Type</strong> describes intent (READ, WRITE, EXECUTE, LOGIN, LOGOUT).</div>
+              <div><strong>Operation</strong> is your app’s verb (e.g. user_login, fetch_account).</div>
+              <div><strong>Result</strong> indicates outcome (SUCCESS, FAILURE, PARTIAL).</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Bookmarks</h2>
+            <div class="view-list" id="bookmarkList"></div>
+          </div>
+        </aside>
+
+        <main class="main">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Audit Events</h2>
+              <div class="meta" id="eventCount">0 events</div>
+            </div>
+            <div class="chips" id="activeChips"></div>
+            <div class="table-wrap">
+              <table class="events-table">
+                <thead>
+                  <tr>
+                    <th data-sort="timestamp">Timestamp</th>
+                    <th data-sort="action">Action</th>
+                    <th data-sort="category">Category</th>
+                    <th data-sort="user">User</th>
+                    <th data-sort="status">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="eventsBody">
+                  <tr class="empty">
+                    <td colspan="5">Load a log file to get started.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <button id="prevPage" class="btn ghost">Prev</button>
+              <div class="meta" id="pageInfo">Page 1</div>
+              <button id="nextPage" class="btn ghost">Next</button>
+            </div>
+          </div>
+
+          <div class="panel detail">
+            <div class="panel-header">
+              <h2>Event Details</h2>
+              <div class="meta" id="detailTitle">Select an event</div>
+            </div>
+            <div class="detail-grid" id="eventDetail">
+              <div class="placeholder">No event selected.</div>
+            </div>
+            <div class="detail-actions">
+              <button id="bookmarkEvent" class="btn ghost">Bookmark</button>
+              <button id="noteEvent" class="btn ghost">Add Note</button>
+              <button id="copyEvent" class="btn ghost">Copy JSON</button>
+            </div>
+            <div class="note-box" id="noteBox"></div>
+          </div>
+
+          <div class="panel detail">
+            <div class="panel-header">
+              <h2>Audit Summary</h2>
+              <div class="meta" id="summaryTitle">Overview</div>
+            </div>
+            <div class="summary-grid" id="summaryPanel"></div>
+          </div>
+
+          <div class="panel detail">
+            <div class="panel-header">
+              <h2>Insights</h2>
+              <div class="meta">Quick signals</div>
+            </div>
+            <div class="insights-grid" id="insightsPanel"></div>
+            <div class="mini-chart" id="timelineChart"></div>
+            <div class="mini-chart" id="timelineBySource"></div>
+            <div class="legend" id="sourceLegend"></div>
+          </div>
+
+          <div class="panel detail">
+            <div class="panel-header">
+              <h2>Validation</h2>
+              <div class="meta">Data quality checks</div>
+            </div>
+            <ul class="validation-list" id="validationPanel"></ul>
+          </div>
+
+          <div class="panel detail">
+            <div class="panel-header">
+              <h2>Integrity Chain</h2>
+              <div class="meta">Tamper-evident summary</div>
+            </div>
+            <div class="summary-grid" id="integrityPanel"></div>
+            <div class="integrity-list" id="integrityList"></div>
+          </div>
+
+          <div class="panel wizard" id="wizardPanel">
+            <div class="panel-header">
+              <h2>Setup Wizard</h2>
+              <div class="meta">Generate a config file</div>
+            </div>
+            <div class="wizard-grid">
+              <label class="field">
+                <span>Application Name</span>
+                <input id="wizAppName" type="text" placeholder="my_app" />
+              </label>
+              <label class="field">
+                <span>Environment</span>
+                <input id="wizEnv" type="text" placeholder="production" />
+              </label>
+              <label class="field">
+                <span>Log Directory</span>
+                <input id="wizDir" type="text" placeholder="./logs/audit" />
+              </label>
+              <label class="field">
+                <span>Format</span>
+                <select id="wizFormat">
+                  <option>json</option>
+                  <option>jsonl</option>
+                  <option>csv</option>
+                  <option>text</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>PII Sanitization</span>
+                <select id="wizSanitize">
+                  <option value="true">Enabled</option>
+                  <option value="false">Disabled</option>
+                </select>
+              </label>
+              <button id="wizardGenerate" class="btn">Generate YAML</button>
+            </div>
+            <pre id="wizardOutput" class="wizard-output"></pre>
+            <div class="wizard-actions">
+              <button id="wizardDownload" class="btn ghost">Download YAML</button>
+            </div>
+          </div>
+
+          <div class="panel tutorial" id="tutorialPanel">
+            <div class="panel-header">
+              <h2>Guided Tutorial</h2>
+            </div>
+            <ol class="tutorial-steps">
+              <li>Click “Load Logs” and choose a JSONL log file.</li>
+              <li>Use filters to find a specific user or action.</li>
+              <li>Select an event to see explanations for each field.</li>
+              <li>Review errors and status to confirm outcomes.</li>
+              <li>Use the Summary panel for quick insights.</li>
+              <li>Generate a config with the Setup Wizard.</li>
+            </ol>
+            <div class="tutorial-note">
+              Pro tip: JSONL is best for large files because it streams line-by-line.
+            </div>
+          </div>
+        </main>
+      </section>
+    </div>
+
+    <script src="app.js"></script>
+
+    <div class="modal" id="helpModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Help & Shortcuts</h2>
+          <button id="helpClose" class="btn ghost">Close</button>
+        </div>
+        <div class="modal-body">
+          <p>Tips for faster navigation:</p>
+          <ul class="shortcut-list">
+            <li><strong>/</strong> Focus search</li>
+            <li><strong>f</strong> Preset: Failures</li>
+            <li><strong>l</strong> Preset: Logins</li>
+            <li><strong>e</strong> Preset: Errors</li>
+            <li><strong>n</strong> Next page</li>
+            <li><strong>p</strong> Previous page</li>
+            <li><strong>?</strong> Toggle help</li>
+            <li><strong>Esc</strong> Close help</li>
+          </ul>
+          <p>Query examples:</p>
+          <ul class="shortcut-list">
+            <li><strong>action:login user:alice status:FAILURE</strong></li>
+            <li><strong>category:API after:2026-01-01</strong></li>
+            <li><strong>error:true source:app.log</strong></li>
+          </ul>
+          <p>Validation highlights missing fields or malformed timestamps.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
