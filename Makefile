@@ -33,13 +33,13 @@ test-sql: ## Run SQL storage tests
 # --- Linting ---
 
 lint: ## Run linters
-	black --check audit_framework/ collector/ agent/ tests/
-	isort --check audit_framework/ collector/ agent/ tests/
-	flake8 audit_framework/ collector/ agent/
+	black --check vigil/ collector/ agent/ tests/
+	isort --check vigil/ collector/ agent/ tests/
+	flake8 vigil/ collector/ agent/
 
 format: ## Auto-format code
-	black audit_framework/ collector/ agent/ tests/
-	isort audit_framework/ collector/ agent/ tests/
+	black vigil/ collector/ agent/ tests/
+	isort vigil/ collector/ agent/ tests/
 
 # --- Services ---
 
@@ -47,7 +47,7 @@ collector: ## Run collector service locally
 	uvicorn collector.main:app --host 0.0.0.0 --port 8080 --reload
 
 agent: ## Run monitoring agent locally
-	python -m agent.main
+	python3 -m agent.main
 
 # --- Docker ---
 
